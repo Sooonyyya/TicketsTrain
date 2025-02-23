@@ -1,0 +1,31 @@
+﻿@model TicketsTrainDomain.Model.Route
+
+@{
+    ViewData["Title"] = "Route - Details";
+}
+
+<h1>Деталі маршруту</h1>
+
+<dl class="row">
+    <dt class="col-sm-2">Початкова станція</dt>
+    <dd class="col-sm-10">@Model.StartStation</dd>
+
+    <dt class="col-sm-2">Кінцева станція</dt>
+    <dd class="col-sm-10">@Model.EndStation</dd>
+
+    <dt class="col-sm-2">Проміжна станція</dt>
+    <dd class="col-sm-10">
+        @if (Model.StationAtRoutes != null)
+        {
+            foreach (var sar in Model.StationAtRoutes)
+            {
+                @sar.RailwayStation.Name <br />
+            }
+        }
+    </dd>
+</dl>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Повернутися</a>
+</div>

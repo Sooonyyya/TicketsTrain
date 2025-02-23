@@ -1,0 +1,49 @@
+﻿@model TicketsTrainDomain.Model.TicketType
+
+<h4>Створення нового типу квитка</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Назва</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SeatNumber" class="control-label">Кількість місць</label>
+                <input asp-for="SeatNumber" class="form-control" />
+                <span asp-validation-for="SeatNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TrainCarriage" class="control-label">Номер вагону</label>
+                <input asp-for="TrainCarriage" class="form-control" />
+                <span asp-validation-for="TrainCarriage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Price" class="control-label">Ціна</label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Доступні потяги</label>
+                <select name="SelectedTrainIds" class="form-control" multiple>
+                    @foreach (var item in (MultiSelectList)ViewBag.AvailableTrains)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

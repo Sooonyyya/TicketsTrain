@@ -1,0 +1,39 @@
+﻿@model IEnumerable<TicketsTrainDomain.Model.StationAtRoute>
+
+@{
+    ViewData["Title"] = "StationAtRoutes - Index";
+}
+
+<h1>Станції на маршруті</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Маршрут</th>
+            <th>Станція</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sar in Model)
+        {
+            <tr>
+                <td>
+                    @($"{sar.Route?.StartStation} - {sar.Route?.EndStation}")
+                </td>
+                <td>
+                    @sar.RailwayStation?.Name
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@sar.Id" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@sar.Id" class="btn btn-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@sar.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

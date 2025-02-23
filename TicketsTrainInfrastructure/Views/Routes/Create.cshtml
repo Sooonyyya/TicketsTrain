@@ -1,0 +1,38 @@
+﻿@model TicketsTrainDomain.Model.Route
+
+@{
+    ViewData["Title"] = "Create Route";
+
+    var stationList = ViewData["AvailableStations"] as MultiSelectList;
+}
+
+<h1>Створити маршрут</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="StartStation">Початкова станція</label>
+        <input asp-for="StartStation" class="form-control" />
+        <span asp-validation-for="StartStation" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndStation">Кінцева станція</label>
+        <input asp-for="EndStation" class="form-control" />
+        <span asp-validation-for="EndStation" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Проміжна станція</label>
+        <select asp-items="stationList"
+                multiple="multiple"
+                name="SelectedStationIds"
+                class="form-control">
+        </select>
+    </div>
+
+    <input type="submit" value="Create" class="btn btn-primary" />
+</form>
+
+<div>
+    <a asp-action="Index">Повернутися</a>
+</div>

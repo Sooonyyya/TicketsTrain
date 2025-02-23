@@ -1,0 +1,57 @@
+﻿@model TicketsTrainDomain.Model.Train
+
+@{
+    ViewData["Title"] = "Create Train";
+
+    // Кастимо ViewData["AvailableRoutes"] у MultiSelectList
+    var routeList = ViewData["AvailableRoutes"] as MultiSelectList;
+}
+
+<h1>Створити потяг</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="TrainName">Назва</label>
+        <input asp-for="TrainName" class="form-control" />
+        <span asp-validation-for="TrainName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Date">Дата подорожі</label>
+        <input asp-for="Date" type="date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Duration">Тривалість (в хвилинах)</label>
+        <input asp-for="Duration" class="form-control" />
+        <span asp-validation-for="Duration" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NumberOfSeats">Кількість місць</label>
+        <input asp-for="NumberOfSeats" class="form-control" />
+        <span asp-validation-for="NumberOfSeats" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NumberOfCarriages">Кількість вагонів</label>
+        <input asp-for="NumberOfCarriages" class="form-control" />
+        <span asp-validation-for="NumberOfCarriages" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Маршрут</label>
+        <select asp-items="routeList"
+                multiple="multiple"
+                name="SelectedRouteIds"
+                class="form-control">
+        </select>
+    </div>
+
+    <input type="submit" value="Create" class="btn btn-primary" />
+</form>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>

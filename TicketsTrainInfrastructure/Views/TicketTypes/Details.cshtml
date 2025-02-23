@@ -1,0 +1,24 @@
+﻿@model TicketsTrainDomain.Model.TicketType
+
+@{
+    ViewData["Title"] = "Деталі типу квитка";
+}
+
+<h1>Деталі типу квитка</h1>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Назва</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+    <dt class="col-sm-2">Кількість місць</dt>
+    <dd class="col-sm-10">@Model.SeatNumber</dd>
+    <dt class="col-sm-2">Номер вагона</dt>
+    <dd class="col-sm-10">@Model.TrainCarriage</dd>
+    <dt class="col-sm-2">Ціна</dt>
+    <dd class="col-sm-10">@Model.Price</dd>
+</dl>
+
+<p>
+    <a asp-action="Index" class="btn btn-secondary">Повернутися</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редагувати</a>
+</p>

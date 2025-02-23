@@ -1,0 +1,46 @@
+﻿@model IEnumerable<TicketsTrainDomain.Model.User>
+
+@{
+    ViewData["Title"] = "Список користувачів";
+}
+
+<h1>Пасажири</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Створити нового</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ім'я</th>
+            <th>Номер телефону (без +380)</th>
+            <th>Прізвище</th>
+            <th>Електронна пошта</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Surname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

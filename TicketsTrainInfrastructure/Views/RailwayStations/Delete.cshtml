@@ -1,0 +1,24 @@
+﻿@model TicketsTrainDomain.Model.RailwayStation
+
+@{
+    ViewData["Title"] = "Видалення";
+}
+
+<h1>Видалити залізничну станціюn</h1>
+
+<dl class="row">
+    <dt class="col-sm-2">Назва</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+
+    <dt class="col-sm-2">Місто</dt>
+    <dd class="col-sm-10">@Model.CityTown</dd>
+
+    <dt class="col-sm-2">Країна</dt>
+    <dd class="col-sm-10">@Model.Country</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <a asp-action="Index">Повернутися</a>
+</form>

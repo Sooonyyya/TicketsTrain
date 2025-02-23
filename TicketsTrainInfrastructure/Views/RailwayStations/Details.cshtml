@@ -1,0 +1,27 @@
+﻿@model TicketsTrainDomain.Model.RailwayStation
+
+@{
+    ViewData["Title"] = "Деталі";
+}
+
+<h1>Деталі</h1>
+
+<div>
+    <h4>Залізнична станція</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Назва</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Місто</dt>
+        <dd class="col-sm-10">@Model.CityTown</dd>
+
+        <dt class="col-sm-2">Країна</dt>
+        <dd class="col-sm-10">@Model.Country</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Повернутися</a>
+</div>

@@ -1,0 +1,29 @@
+﻿@model TicketsTrainDomain.Model.TicketTypeTrain
+
+@{
+    ViewData["Title"] = "Create TicketTypeTrain";
+    var ticketTypeList = ViewData["TicketTypeId"] as SelectList;
+    var trainList = ViewData["TrainId"] as SelectList;
+}
+
+<h1>Типи квитків (управління)</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="TicketTypeId">Тип квитка</label>
+        <select asp-for="TicketTypeId" asp-items="ticketTypeList" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TrainId">Потяг</label>
+        <select asp-for="TrainId" asp-items="trainList" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Створити" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>

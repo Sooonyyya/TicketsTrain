@@ -1,0 +1,27 @@
+﻿@model TicketsTrainDomain.Model.TicketType
+
+@{
+    ViewData["Title"] = "Видалити тип квитка";
+}
+
+<h1>Видалити тип квитка</h1>
+<hr />
+
+<h4>Ви дійсно бажаєте видалити цей тип квитка?</h4>
+
+<dl class="row">
+    <dt class="col-sm-2">Назва</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+    <dt class="col-sm-2">Кількість місць</dt>
+    <dd class="col-sm-10">@Model.SeatNumber</dd>
+    <dt class="col-sm-2">Номер вагона</dt>
+    <dd class="col-sm-10">@Model.TrainCarriage</dd>
+    <dt class="col-sm-2">Ціна</dt>
+    <dd class="col-sm-10">@Model.Price</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Видалити" class="btn btn-danger" />
+    <a asp-action="Index" class="btn btn-secondary">Назад</a>
+</form>

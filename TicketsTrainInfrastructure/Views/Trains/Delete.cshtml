@@ -1,0 +1,43 @@
+﻿@model TicketsTrainDomain.Model.Train
+
+@{
+    ViewData["Title"] = "Delete Train";
+}
+
+<h1>Видалити</h1>
+
+<dl class="row">
+    <dt class="col-sm-2">Назва</dt>
+    <dd class="col-sm-10">@Model.TrainName</dd>
+
+    <dt class="col-sm-2">Дата</dt>
+    <dd class="col-sm-10">@Model.Date.ToShortDateString()</dd>
+
+    <dt class="col-sm-2">Тривалість</dt>
+    <dd class="col-sm-10">@Model.Duration</dd>
+
+    <dt class="col-sm-2">Місця</dt>
+    <dd class="col-sm-10">@Model.NumberOfSeats</dd>
+
+    <dt class="col-sm-2">Вагони</dt>
+    <dd class="col-sm-10">@Model.NumberOfCarriages</dd>
+
+    <dt class="col-sm-2">Маршрут</dt>
+    <dd class="col-sm-10">
+        @if (Model.TrainAtRoutes != null)
+        {
+            foreach (var tar in Model.TrainAtRoutes)
+            {
+                @($"{tar.Route.StartStation} - {tar.Route.EndStation}")
+
+                <br />
+            }
+        }
+    </dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <a asp-action="Index">Назад</a>
+</form>

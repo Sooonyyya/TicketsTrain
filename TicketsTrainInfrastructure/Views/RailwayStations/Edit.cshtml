@@ -1,0 +1,35 @@
+﻿@model TicketsTrainDomain.Model.RailwayStation
+
+@{
+    ViewData["Title"] = "Редагування";
+}
+
+<h1>Редагувати</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Назва</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CityTown" class="control-label">Місто</label>
+        <input asp-for="CityTown" class="form-control" />
+        <span asp-validation-for="CityTown" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Country" class="control-label">Країна</label>
+        <input asp-for="Country" class="form-control" />
+        <span asp-validation-for="Country" class="text-danger"></span>
+    </div>
+
+    <input type="submit" value="Save" class="btn btn-primary" />
+</form>
+
+<div>
+    <a asp-action="Index">Повернутися</a>
+</div>

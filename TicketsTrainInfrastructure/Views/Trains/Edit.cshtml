@@ -1,0 +1,57 @@
+﻿@model TicketsTrainDomain.Model.Train
+
+@{
+    ViewData["Title"] = "Edit Train";
+    var routeList = ViewData["AvailableRoutes"] as MultiSelectList;
+}
+
+<h1>Редагувати</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="TrainName">Назва</label>
+        <input asp-for="TrainName" class="form-control" />
+        <span asp-validation-for="TrainName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Date">Дата</label>
+        <input asp-for="Date" type="date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Duration">Трвалість</label>
+        <input asp-for="Duration" class="form-control" />
+        <span asp-validation-for="Duration" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NumberOfSeats">Місця</label>
+        <input asp-for="NumberOfSeats" class="form-control" />
+        <span asp-validation-for="NumberOfSeats" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NumberOfCarriages">Вагони</label>
+        <input asp-for="NumberOfCarriages" class="form-control" />
+        <span asp-validation-for="NumberOfCarriages" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Маршрут</label>
+        <select asp-items="routeList"
+                multiple="multiple"
+                name="SelectedRouteIds"
+                class="form-control">
+        </select>
+    </div>
+
+    <input type="submit" value="Save" class="btn btn-primary" />
+</form>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>

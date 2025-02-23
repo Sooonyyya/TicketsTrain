@@ -1,0 +1,39 @@
+﻿@model IEnumerable<TicketsTrainDomain.Model.TicketType>
+
+@{
+    ViewData["Title"] = "Список типів квитків";
+}
+
+<h1>Список типів квитків</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Створити новий тип квитка</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Кількість місць</th>
+            <th>Номер вагона</th>
+            <th>Ціна</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.SeatNumber</td>
+                <td>@item.TrainCarriage</td>
+                <td>@item.Price</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

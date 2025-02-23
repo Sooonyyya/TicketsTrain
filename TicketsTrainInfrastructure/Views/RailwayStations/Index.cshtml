@@ -1,0 +1,37 @@
+﻿@model IEnumerable<TicketsTrainDomain.Model.RailwayStation>
+
+@{
+    ViewData["Title"] = "Залізнична станція";
+}
+
+<h1>Залізничні станції</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Створити</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Місто</th>
+            <th>Країна</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var station in Model)
+        {
+            <tr>
+                <td>@station.Name</td>
+                <td>@station.CityTown</td>
+                <td>@station.Country</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@station.Id" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@station.Id" class="btn btn-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@station.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

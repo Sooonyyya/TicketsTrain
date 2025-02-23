@@ -1,0 +1,53 @@
+﻿@model IEnumerable<TicketsTrainDomain.Model.Train>
+
+@{
+    ViewData["Title"] = "Trains - Index";
+}
+
+<h1>Потяги</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Створити новий</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Дата відправлення</th>
+            <th>Тривалість поїздки (в хвилинах)</th>
+            <th>Кількість місць</th>
+            <th>Кількість вагонів</th>
+            <th>Маршрут</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var train in Model)
+        {
+            <tr>
+                <td>@train.TrainName</td>
+                <td>@train.Date.ToShortDateString()</td>
+                <td>@train.Duration</td>
+                <td>@train.NumberOfSeats</td>
+                <td>@train.NumberOfCarriages</td>
+                <td>
+                    @if (train.TrainAtRoutes != null)
+                    {
+                        foreach (var tar in train.TrainAtRoutes)
+                        {
+                            @($"{tar.Route.StartStation} - {tar.Route.EndStation}")
+
+                            <br />
+                        }
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@train.Id" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@train.Id" class="btn btn-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@train.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

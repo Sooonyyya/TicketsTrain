@@ -1,0 +1,32 @@
+﻿@model TicketsTrainDomain.Model.Route
+
+@{
+    ViewData["Title"] = "Delete Route";
+}
+
+<h1>Видалити маршрут</h1>
+
+<dl class="row">
+    <dt class="col-sm-2">Початкова станція</dt>
+    <dd class="col-sm-10">@Model.StartStation</dd>
+
+    <dt class="col-sm-2">Кінцева станція</dt>
+    <dd class="col-sm-10">@Model.EndStation</dd>
+
+    <dt class="col-sm-2">Проміжна станція</dt>
+    <dd class="col-sm-10">
+        @if (Model.StationAtRoutes != null)
+        {
+            foreach (var sar in Model.StationAtRoutes)
+            {
+                @sar.RailwayStation.Name <br />
+            }
+        }
+    </dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <a asp-action="Index">Повернутися</a>
+</form>

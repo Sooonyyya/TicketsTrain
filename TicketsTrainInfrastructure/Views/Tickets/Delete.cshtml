@@ -1,0 +1,36 @@
+﻿@model TicketsTrainDomain.Model.Ticket
+
+@{
+    ViewData["Title"] = "Видалити квиток";
+}
+
+<h1>Видалити квиток</h1>
+<hr />
+
+<h4>Ви дійсно бажаєте видалити цей квиток?</h4>
+
+<dl class="row">
+    <dt class="col-sm-2">Потяг</dt>
+    <dd class="col-sm-10">@Model.Train.TrainName</dd>
+
+    <dt class="col-sm-2">Користувач</dt>
+    <dd class="col-sm-10">@Model.User.Name</dd>
+
+    <dt class="col-sm-2">Дата подорожі</dt>
+    <dd class="col-sm-10">@Model.DateOfTravel</dd>
+
+    <dt class="col-sm-2">Тип квитка</dt>
+    <dd class="col-sm-10">@Model.TicketTypeTrain.TicketType.Name</dd>
+
+    <dt class="col-sm-2">Станція відправлення</dt>
+    <dd class="col-sm-10">@Model.DispatchStation.Name</dd>
+
+    <dt class="col-sm-2">Станція прибуття</dt>
+    <dd class="col-sm-10">@Model.ArrivalStation.Name</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Видалити" class="btn btn-danger" />
+    <a asp-action="Index" class="btn btn-secondary">Назад</a>
+</form>

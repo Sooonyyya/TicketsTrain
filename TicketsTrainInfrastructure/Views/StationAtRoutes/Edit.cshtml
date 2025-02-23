@@ -1,0 +1,30 @@
+﻿@model TicketsTrainDomain.Model.StationAtRoute
+
+@{
+    ViewData["Title"] = "Edit StationAtRoute";
+
+    var routeList = ViewData["RouteId"] as SelectList;
+    var stationList = ViewData["RailwayStationId"] as SelectList;
+}
+
+<h1>Редагувати</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="RouteId">Маршрут</label>
+        <select asp-for="RouteId" asp-items="routeList" class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="RailwayStationId">Залізнична станція</label>
+        <select asp-for="RailwayStationId" asp-items="stationList" class="form-control"></select>
+    </div>
+
+    <input type="submit" value="Save" class="btn btn-primary" />
+</form>
+
+<div>
+    <a asp-action="Index">Повернутися</a>
+</div>

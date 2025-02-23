@@ -1,0 +1,35 @@
+﻿@model IEnumerable<TicketsTrainDomain.Model.TrainAtRoute>
+
+@{
+    ViewData["Title"] = "TrainAtRoutes - Index";
+}
+
+<h1>Потяги на маршрутах (управління)</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Потяг</th>
+            <th>Маршрут</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tar in Model)
+        {
+            <tr>
+                <td>@tar.Train?.TrainName</td>
+                <td>@($"{tar.Route?.StartStation} - {tar.Route?.EndStation}")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@tar.Id" class="btn btn-warning">Редагувати</a>
+                    <a asp-action="Details" asp-route-id="@tar.Id" class="btn btn-info">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@tar.Id" class="btn btn-danger">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

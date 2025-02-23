@@ -1,0 +1,92 @@
+﻿@model TicketsTrainDomain.Model.Ticket
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Пасажир</label>
+                <select asp-for="UserId" class="form-control" asp-items="ViewBag.Users">
+                    <option value="">-- Виберіть пасажира --</option>
+                </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Дата подорожі</label>
+                <input asp-for="DateOfTravel" class="form-control" type="date" required />
+                <span asp-validation-for="DateOfTravel" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Станція відправлення</label>
+                <select asp-for="DispatchStationId" class="form-control" asp-items="ViewBag.Stations">
+                    <option value="">-- Виберіть станцію відправлення --</option>
+                </select>
+                <span asp-validation-for="DispatchStationId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Станція прибуття</label>
+                <select asp-for="ArrivalStationId" class="form-control" asp-items="ViewBag.Stations">
+                    <option value="">-- Виберіть станцію прибуття --</option>
+                </select>
+                <span asp-validation-for="ArrivalStationId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <button type="submit" name="action" value="UpdateTrains" class="btn btn-secondary">
+                    Знайти доступні потяги
+                </button>
+            </div>
+
+            @if (ViewBag.Trains != null && ((SelectList)ViewBag.Trains).Any())
+            {
+                <div class="form-group mb-3">
+                    <label class="control-label">Потяг</label>
+                    <select asp-for="TrainId" class="form-control" asp-items="ViewBag.Trains">
+                        <option value="">-- Виберіть потяг --</option>
+                    </select>
+                    <span asp-validation-for="TrainId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <button type="submit" name="action" value="UpdateTicketTypes" class="btn btn-secondary">
+                        Показати доступні типи квитків
+                    </button>
+                </div>
+            }
+
+            @if (ViewBag.TicketTypeTrains != null && ((SelectList)ViewBag.TicketTypeTrains).Any())
+            {
+                <div class="form-group mb-3">
+                    <label class="control-label">Тип квитка</label>
+                    <select asp-for="TicketTypeTrainId" class="form-control" asp-items="ViewBag.TicketTypeTrains">
+                        <option value="">-- Виберіть тип квитка --</option>
+                    </select>
+                    <span asp-validation-for="TicketTypeTrainId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Створити" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Повернутися до списку</a>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <a asp-action="Index" class="btn btn-secondary">Повернутися до списку</a>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
