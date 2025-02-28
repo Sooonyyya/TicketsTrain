@@ -26,7 +26,7 @@
                     @($"{sar.Route?.StartStation} - {sar.Route?.EndStation}")
                 </td>
                 <td>
-                    @sar.RailwayStation?.Name
+                    @sar.RailwayStation?.CityTown
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@sar.Id" class="btn btn-warning">Редагувати</a>

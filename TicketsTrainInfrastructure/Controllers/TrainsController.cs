@@ -83,14 +83,26 @@ namespace TicketsTrainInfrastructure.Controllers
         }
 
         // POST: Trains/Create
+        // POST: Trains/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("Id,TrainName,Date,Duration,NumberOfSeats,NumberOfCarriages")]
-            Train train,
-            int[] SelectedRouteIds
-        )
+        public async Task<IActionResult> Create([Bind("Id,TrainName,Date,Duration,NumberOfSeats,NumberOfCarriages")] Train train, int[] SelectedRouteIds)
         {
+            // Перевіряємо, чи дата не в минулому
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (train.Date < today)
+            {
+                ModelState.AddModelError("Date", "Неможливо створити потяг на дату в минулому");
+                ViewData["AvailableRoutes"] = new MultiSelectList(
+                    _context.Routes.Select(r => new {
+                        r.Id,
+                        Display = r.StartStation + " - " + r.EndStation
+                    }),
+                    "Id", "Display",
+                    SelectedRouteIds
+                );
+                return View(train);
+            }
             if (ModelState.IsValid)
             {
                 _context.Trains.Add(train);
@@ -154,15 +166,26 @@ namespace TicketsTrainInfrastructure.Controllers
         // POST: Trains/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(
-            int id,
-            [Bind("Id,TrainName,Date,Duration,NumberOfSeats,NumberOfCarriages")]
-            Train train,
-            int[] SelectedRouteIds
-        )
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TrainName,Date,Duration,NumberOfSeats,NumberOfCarriages")] Train train, int[] SelectedRouteIds)
         {
             if (id != train.Id)
                 return NotFound();
+
+            // Перевіряємо, чи дата не в минулому
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (train.Date < today)
+            {
+                ModelState.AddModelError("Date", "Неможливо змінити дату потяга на дату в минулому");
+                ViewData["AvailableRoutes"] = new MultiSelectList(
+                    _context.Routes.Select(r => new {
+                        r.Id,
+                        Display = r.StartStation + " - " + r.EndStation
+                    }),
+                    "Id", "Display",
+                    SelectedRouteIds
+                );
+                return View(train);
+            }
 
             if (ModelState.IsValid)
             {

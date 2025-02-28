@@ -1,81 +1,51 @@
 ﻿@model TicketsTrainDomain.Model.Ticket
 
-@{
-    ViewData["Title"] = "Edit Ticket";
-    var trainList = ViewData["Trains"] as SelectList;
-    var userList = ViewData["Users"] as SelectList;
-    var ticketTypeTrainList = ViewData["TicketTypeTrains"] as SelectList;
-    var stationList = ViewData["Stations"] as SelectList;
-}
+<h4>@ViewData["Title"]</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
 
-<h1>Редагувати</h1>
+            <div class="form-group mb-3">
+                <label class="control-label">Пасажир</label>
+                <select name="UserId" class="form-control" asp-items="ViewBag.Users">
+                    <option value="">-- Виберіть пасажира --</option>
+                </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
+            <!-- Відображення інформації про квиток (тільки для читання) -->
+            <div class="form-group mb-3">
+                <label class="control-label">Дата подорожі</label>
+                <input asp-for="DateOfTravel" class="form-control" readonly />
+            </div>
 
-    <div class="form-group">
-        <label asp-for="TrainId">Потяг</label>
-        <select asp-for="TrainId" asp-items="trainList" class="form-control" id="TrainId"></select>
+            <div class="form-group mb-3">
+                <label class="control-label">Станція відправлення</label>
+                <input value="@Model.DispatchStation.CityTown" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Станція прибуття</label>
+                <input value="@Model.ArrivalStation.CityTown" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Потяг</label>
+                <input value="@Model.Train.TrainName" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Тип квитка</label>
+                <input value="@Model.TicketTypeTrain.TicketType.Name" class="form-control" readonly />
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Зберегти" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Повернутися до списку</a>
+            </div>
+        </form>
     </div>
-
-    <div class="form-group">
-        <label asp-for="UserId">Пасажир</label>
-        <select asp-for="UserId" asp-items="userList" class="form-control"></select>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="DateOfTravel">Дата подорожі</label>
-        <input asp-for="DateOfTravel" type="date" class="form-control" />
-        <span asp-validation-for="DateOfTravel" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="TicketTypeTrainId">Тип квитка</label>
-        <select asp-for="TicketTypeTrainId" asp-items="ticketTypeTrainList" class="form-control" id="TicketTypeTrainId"></select>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="DispatchStationId">Станція відбуття</label>
-        <select asp-for="DispatchStationId" asp-items="stationList" class="form-control"></select>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="ArrivalStationId">Станція прибуття</label>
-        <select asp-for="ArrivalStationId" asp-items="stationList" class="form-control"></select>
-    </div>
-
-    <input type="submit" value="Save" class="btn btn-primary" />
-</form>
-
-<div>
-    <a asp-action="Index">Назад</a>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $('#TrainId').change(function () {
-                var trainId = $(this).val();
-                if (trainId) {
-                    $.ajax({
-                        url: '@Url.Action("GetTicketTypeTrains", "Tickets")',
-                        type: "GET",
-                        data: { trainId: trainId },
-                        success: function (data) {
-                            var $ticketTypeSelect = $('#TicketTypeTrainId');
-                            $ticketTypeSelect.empty();
-                            $.each(data, function (index, item) {
-                                $ticketTypeSelect.append($('<option></option>').val(item.id).text(item.display));
-                            });
-                        },
-                        error: function () {
-                            alert("Error retrieving ticket types.");
-                        }
-                    });
-                } else {
-                    $('#TicketTypeTrainId').empty();
-                }
-            });
-        });
-    </script>
-}

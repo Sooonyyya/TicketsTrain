@@ -77,6 +77,13 @@ namespace TicketsTrainInfrastructure.Controllers
             {
                 if (ticket.DateOfTravel != default && ticket.DispatchStationId != 0 && ticket.ArrivalStationId != 0)
                 {
+                    var today = DateOnly.FromDateTime(DateTime.Today);
+                    if (ticket.DateOfTravel < today)
+                    {
+                        ModelState.AddModelError("DateOfTravel", "Неможливо обрати дату в минулому");
+                        PrepareViewData(ticket);
+                        return View(ticket);
+                    }
                     var dispatchStation = await _context.RailwayStations
                         .FirstOrDefaultAsync(s => s.Id == ticket.DispatchStationId);
                     var arrivalStation = await _context.RailwayStations
@@ -167,46 +174,43 @@ namespace TicketsTrainInfrastructure.Controllers
             return View(ticket);
         }
 
+        // GET: Tickets/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
             ViewData["Title"] = "Редагування квитка";
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await _context.Tickets
+                .Include(t => t.Train)
+                .Include(t => t.User)
+                .Include(t => t.TicketTypeTrain)
+                    .ThenInclude(tt => tt.TicketType)
+                .Include(t => t.ArrivalStation)
+                .Include(t => t.DispatchStation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (ticket == null) return NotFound();
 
-            PrepareViewData(ticket);
-
-            if (ticket.TrainId != 0)
-            {
-                var trains = await GetAvailableTrains(ticket.DispatchStationId, ticket.ArrivalStationId, ticket.DateOfTravel);
-                ViewData["Trains"] = new SelectList(trains, "Id", "TrainName", ticket.TrainId);
-
-                var ticketTypes = await _context.TicketTypeTrains
-                    .Include(tt => tt.TicketType)
-                    .Where(tt => tt.TrainId == ticket.TrainId)
-                    .Select(tt => new
-                    {
-                        tt.Id,
-                        Name = $"{tt.TicketType.Name} (Ціна: {tt.TicketType.Price} грн)"
-                    })
-                    .ToListAsync();
-
-                ViewData["TicketTypeTrains"] = new SelectList(ticketTypes, "Id", "Name", ticket.TicketTypeTrainId);
-            }
+            // Додаємо тільки список пасажирів
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "Name", ticket.UserId);
 
             return View(ticket);
         }
 
+        // POST: Tickets/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Ticket ticket)
+        public async Task<IActionResult> Edit(int id, int UserId)
         {
-            if (id != ticket.Id) return NotFound();
+            var ticket = await _context.Tickets.FindAsync(id);
 
-            if (ticket.UserId != 0 && ticket.TrainId != 0 && ticket.TicketTypeTrainId != 0 &&
-                ticket.DispatchStationId != 0 && ticket.ArrivalStationId != 0 && ticket.DateOfTravel != default)
+            if (ticket == null)
+                return NotFound();
+
+            if (UserId != 0)
             {
+                ticket.UserId = UserId;
+
                 try
                 {
                     _context.Update(ticket);
@@ -215,14 +219,15 @@ namespace TicketsTrainInfrastructure.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TicketExists(ticket.Id))
+                    if (!TicketExists(id))
                         return NotFound();
                     else
                         throw;
                 }
             }
 
-            PrepareViewData(ticket);
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "Name", UserId);
+
             return View(ticket);
         }
 
@@ -294,6 +299,54 @@ namespace TicketsTrainInfrastructure.Controllers
         private bool TicketExists(int id)
         {
             return _context.Tickets.Any(e => e.Id == id);
+        }
+        // GET: Tickets/Cancel/5
+        public async Task<IActionResult> Cancel(int? id)
+        {
+            if (id == null) return NotFound();
+
+            ViewData["Title"] = "Відміна квитка";
+            var ticket = await _context.Tickets
+                .Include(t => t.Train)
+                .Include(t => t.User)
+                .Include(t => t.TicketTypeTrain)
+                    .ThenInclude(tt => tt.TicketType)
+                .Include(t => t.ArrivalStation)
+                .Include(t => t.DispatchStation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (ticket == null) return NotFound();
+
+            // Перевіряємо, чи поїзд ще не пішов
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (ticket.DateOfTravel < today)
+            {
+                ViewData["ErrorMessage"] = "Неможливо скасувати квиток на минулу дату";
+                return View("Error");
+            }
+
+            return View(ticket);
+        }
+
+        // POST: Tickets/Cancel/5
+        [HttpPost, ActionName("Cancel")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelConfirmed(int id)
+        {
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null) return NotFound();
+
+            // Перевіряємо, чи потяг ще не пішов
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            if (ticket.DateOfTravel < today)
+            {
+                ViewData["ErrorMessage"] = "Неможливо скасувати квиток на минулу дату";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Tickets.Remove(ticket);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

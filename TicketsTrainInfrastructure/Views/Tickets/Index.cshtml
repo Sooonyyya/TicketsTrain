@@ -17,6 +17,9 @@
             <th>Користувач</th>
             <th>Дата подорожі</th>
             <th>Тип квитка</th>
+            <th>Ціна</th>
+            <th>Номер місця</th>
+            <th>Номер вагону</th>
             <th>Станція відправлення</th>
             <th>Станція прибуття</th>
             <th></th>
@@ -30,9 +33,13 @@
                 <td>@item.User.Name</td>
                 <td>@item.DateOfTravel</td>
                 <td>@item.TicketTypeTrain.TicketType.Name</td>
+                <td>@item.TicketTypeTrain.TicketType.Price</td>
+                <td>@item.TicketTypeTrain.TicketType.SeatNumber</td>
+                <td>@item.TicketTypeTrain.TicketType.TrainCarriage</td>
                 <td>@item.DispatchStation.Name</td>
                 <td>@item.ArrivalStation.Name</td>
                 <td>
+                    <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Скасувати</a>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Редагувати</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Деталі</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Видалити</a>

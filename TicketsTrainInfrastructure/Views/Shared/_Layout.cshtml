@@ -2,43 +2,252 @@
 <html lang="uk">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Бронювання квитків на потяг</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --railway-dark: #1a3c5e;
+            --railway-medium: #2e6ca4;
+            --railway-light: #6c9fd1;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+
+        .navbar-custom {
+            background-color: var(--railway-dark);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .navbar-custom .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .navbar-custom .nav-link {
+            color: rgba(255,255,255,0.8) !important;
+            transition: color 0.3s;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .navbar-custom .nav-link:hover {
+            color: white !important;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .navbar-custom .nav-item.active .nav-link {
+            color: white !important;
+            background-color: var(--railway-medium);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .card {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            background-color: var(--railway-medium);
+            color: white;
+            font-weight: bold;
+            border-top-left-radius: 8px !important;
+            border-top-right-radius: 8px !important;
+        }
+
+        .btn-primary {
+            background-color: var(--railway-medium);
+            border-color: var(--railway-medium);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--railway-dark);
+            border-color: var(--railway-dark);
+        }
+
+        .btn-outline-primary {
+            color: var(--railway-medium);
+            border-color: var(--railway-medium);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--railway-medium);
+            border-color: var(--railway-medium);
+        }
+
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .table thead {
+            background-color: var(--railway-medium);
+            color: white;
+        }
+
+        .footer {
+            background-color: var(--railway-dark) !important;
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--railway-light);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Стилі для форм */
+        .form-control:focus {
+            border-color: var(--railway-medium);
+            box-shadow: 0 0 0 0.25rem rgba(46, 108, 164, 0.25);
+        }
+
+        .form-select:focus {
+            border-color: var(--railway-medium);
+            box-shadow: 0 0 0 0.25rem rgba(46, 108, 164, 0.25);
+        }
+
+        /* Стилі для навігаційного меню категорій */
+        .nav-category {
+            font-weight: bold;
+            color: #888;
+            margin-top: 1rem;
+            margin-bottom: 0.25rem;
+            padding-left: 1rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        /* Анімації */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")">Бронювання квитків на потяг</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Перемикач навігації">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Tickets")">Квитки</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "RailwayStations")">Станції</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Routes")">Маршрути</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Trains")">Потяги</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Users")">Користувачі</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "TicketTypes")">Типи квитків</a></li>
-                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "TicketTypeTrains")">Типи квитків (управління)</a></li>
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "StationAtRoutes")">Станції на маршруті (управління)</a></li>
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "TrainAtRoutes")">Потяг на маршруті (управління)</a></li>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+            <div class="container">
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                    <i class="fas fa-train me-2"></i>Бронювання квитків на потяг
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Перемикач навігації">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Tickets")">
+                                <i class="fas fa-ticket-alt me-1"></i>Квитки
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "RailwayStations")">
+                                <i class="fas fa-map-marker-alt me-1"></i>Станції
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Routes")">
+                                <i class="fas fa-route me-1"></i>Маршрути
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Trains")">
+                                <i class="fas fa-subway me-1"></i>Потяги
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Users")">
+                                <i class="fas fa-users me-1"></i>Користувачі
+                            </a>
+                        </li>
+                    </ul>
 
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cog me-1"></i>Адміністрування
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "TicketTypes")">Типи квитків</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "TicketTypeTrains")">Типи квитків (управління)</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "StationAtRoutes")">Станції на маршруті</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "TrainAtRoutes")">Потяг на маршруті</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-                </ul>
+    <main class="main-content">
+        <div class="container fade-in">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="footer text-center">
+        <div class="container">
+            
+            <div class="mt-3">
+                <span>2025 Бронювання квитків на потяг.</span>
             </div>
         </div>
-    </nav>
-    <div class="container mt-3">
-        @RenderBody()
-    </div>
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container">
-            <span class="text-muted">&copy; 2025 Бронювання квитків на потяг</span>
-        </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Активація поточного пункту меню
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.includes(href)) {
+                    link.parentElement.classList.add('active');
+                }
+            });
+
+            // Додаємо анімацію для карток при завантаженні
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('fade-in');
+            });
+        });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

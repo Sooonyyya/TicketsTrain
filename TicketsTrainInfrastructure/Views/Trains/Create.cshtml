@@ -16,9 +16,9 @@
         <span asp-validation-for="TrainName" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Date">Дата подорожі</label>
-        <input asp-for="Date" type="date" class="form-control" />
+    <div class="form-group mb-3">
+        <label asp-for="Date" class="control-label">Дата</label>
+        <input asp-for="Date" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
         <span asp-validation-for="Date" class="text-danger"></span>
     </div>
 
