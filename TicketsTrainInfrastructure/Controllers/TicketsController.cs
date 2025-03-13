@@ -18,19 +18,108 @@ namespace TicketsTrainInfrastructure.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? departureStationId, int? arrivalStationId, string travelDate,
+            decimal? minPrice, decimal? maxPrice, string trainNumber, int? ticketTypeId)
         {
             ViewData["Title"] = "Список квитків";
-            var tickets = await _context.Tickets
+
+            // Підготовка списків для форми пошуку
+            var stations = await _context.RailwayStations
+                .Select(s => new { s.Id, s.CityTown })
+                .OrderBy(s => s.CityTown)
+                .ToListAsync();
+
+            ViewData["Stations"] = new SelectList(stations, "Id", "CityTown");
+
+            // Додаємо список типів квитків для фільтрації (унікальні значення)
+            var ticketTypes = await _context.TicketTypes
+                .Select(tt => new { tt.Id, tt.Name })
+                .OrderBy(tt => tt.Name)
+                .ToListAsync();
+
+            // Видаляємо дублікати після отримання даних з бази
+            var uniqueTicketTypes = ticketTypes
+                .GroupBy(t => t.Name)
+                .Select(g => g.First())
+                .ToList();
+
+            ViewData["TicketTypes"] = new SelectList(uniqueTicketTypes, "Id", "Name");
+
+            // Пошук квитків
+            var query = _context.Tickets
                 .Include(t => t.Train)
                 .Include(t => t.User)
                 .Include(t => t.TicketTypeTrain)
                     .ThenInclude(tt => tt.TicketType)
                 .Include(t => t.ArrivalStation)
                 .Include(t => t.DispatchStation)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (departureStationId.HasValue)
+            {
+                query = query.Where(t => t.DispatchStationId == departureStationId.Value);
+                ViewBag.SelectedDepartureStationId = departureStationId.Value;
+            }
+
+            if (arrivalStationId.HasValue)
+            {
+                query = query.Where(t => t.ArrivalStationId == arrivalStationId.Value);
+                ViewBag.SelectedArrivalStationId = arrivalStationId.Value;
+            }
+
+            if (!string.IsNullOrEmpty(travelDate))
+            {
+                if (DateOnly.TryParse(travelDate, out var date))
+                {
+                    query = query.Where(t => t.DateOfTravel == date);
+                    ViewBag.SelectedDate = travelDate;
+                }
+            }
+
+            // Фільтрація за ціною
+            if (minPrice.HasValue)
+            {
+                query = query.Where(t => t.TicketTypeTrain.TicketType.Price >= minPrice.Value);
+                ViewBag.MinPrice = minPrice.Value;
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(t => t.TicketTypeTrain.TicketType.Price <= maxPrice.Value);
+                ViewBag.MaxPrice = maxPrice.Value;
+            }
+
+            // Фільтрація за номером потяга
+            if (!string.IsNullOrEmpty(trainNumber))
+            {
+                query = query.Where(t => t.Train.TrainName.Contains(trainNumber));
+                ViewBag.TrainNumber = trainNumber;
+            }
+
+            // Фільтрація за типом квитка
+            if (ticketTypeId.HasValue)
+            {
+                // Отримуємо назву типу квитка для пошуку
+                var ticketTypeName = await _context.TicketTypes
+                    .Where(tt => tt.Id == ticketTypeId.Value)
+                    .Select(tt => tt.Name)
+                    .FirstOrDefaultAsync();
+
+                if (!string.IsNullOrEmpty(ticketTypeName))
+                {
+                    // Шукаємо за назвою типу квитка, а не за ID
+                    query = query.Where(t => t.TicketTypeTrain.TicketType.Name == ticketTypeName);
+                }
+
+                ViewBag.SelectedTicketTypeId = ticketTypeId.Value;
+            }
+
+            var tickets = await query.ToListAsync();
+
             return View(tickets);
         }
+
+        // Інші методи залишаються без змін
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -116,15 +205,21 @@ namespace TicketsTrainInfrastructure.Controllers
 
             if (action == "UpdateTicketTypes" && ticket.TrainId != 0)
             {
-                var ticketTypes = await _context.TicketTypeTrains
+                var ticketTypeTrains = await _context.TicketTypeTrains
                     .Include(tt => tt.TicketType)
                     .Where(tt => tt.TrainId == ticket.TrainId)
+                    .ToListAsync();
+
+                // Групуємо після отримання даних з бази
+                var ticketTypes = ticketTypeTrains
+                    .GroupBy(tt => tt.TicketType.Name)
+                    .Select(g => g.First())
                     .Select(tt => new
                     {
                         tt.Id,
                         Name = $"{tt.TicketType.Name} (Ціна: {tt.TicketType.Price} грн)"
                     })
-                    .ToListAsync();
+                    .ToList();
 
                 ViewData["TicketTypeTrains"] = new SelectList(ticketTypes, "Id", "Name");
 
@@ -300,6 +395,7 @@ namespace TicketsTrainInfrastructure.Controllers
         {
             return _context.Tickets.Any(e => e.Id == id);
         }
+
         // GET: Tickets/Cancel/5
         public async Task<IActionResult> Cancel(int? id)
         {
@@ -347,6 +443,144 @@ namespace TicketsTrainInfrastructure.Controllers
             _context.Tickets.Remove(ticket);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Tickets/TicketMaster
+        public async Task<IActionResult> TicketMaster()
+        {
+            ViewData["Title"] = "Майстер бронювання квитків";
+
+            // Підготуємо станції для вибору
+            var stations = await _context.RailwayStations
+                .Select(s => new { s.Id, s.CityTown })
+                .OrderBy(s => s.CityTown)
+                .ToListAsync();
+
+            ViewData["Stations"] = new SelectList(stations, "Id", "CityTown");
+
+            // За замовчуванням встановлюємо дату на завтра
+            ViewData["DefaultDate"] = DateOnly.FromDateTime(DateTime.Today.AddDays(1)).ToString("yyyy-MM-dd");
+
+            // Підготуємо користувачів для вибору
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "Name");
+
+            return View();
+        }
+
+        // POST: Tickets/TicketMaster
+        [HttpPost]
+        public async Task<IActionResult> TicketMaster(int departureStationId, int arrivalStationId,
+            string travelDate, int? userId, int? trainId, int? ticketTypeId, string selectedDateVal = null)
+        {
+            // Підготовка базових даних
+            var stations = await _context.RailwayStations
+                .Select(s => new { s.Id, s.CityTown })
+                .OrderBy(s => s.CityTown)
+                .ToListAsync();
+
+            ViewData["Stations"] = new SelectList(stations, "Id", "CityTown");
+
+            // Встановлення значення для дати
+            DateOnly parsedTravelDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
+            // Спочатку перевіряємо selectedDateVal (збережене значення з форми)
+            if (!string.IsNullOrEmpty(selectedDateVal) && DateOnly.TryParse(selectedDateVal, out var selectedDate))
+            {
+                parsedTravelDate = selectedDate;
+            }
+            // Якщо не знайдено в selectedDateVal, перевіряємо travelDate
+            else if (!string.IsNullOrEmpty(travelDate) && DateOnly.TryParse(travelDate, out var date))
+            {
+                parsedTravelDate = date;
+            }
+
+            // Зберігаємо дату в кількох місцях для консистентності
+            ViewData["DefaultDate"] = parsedTravelDate.ToString("yyyy-MM-dd");
+            ViewData["SelectedDate"] = parsedTravelDate;
+            ViewBag.TravelDate = parsedTravelDate.ToString("yyyy-MM-dd");
+
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "Name", userId);
+
+            var departureStation = await _context.RailwayStations.FindAsync(departureStationId);
+            var arrivalStation = await _context.RailwayStations.FindAsync(arrivalStationId);
+
+            if (departureStation == null || arrivalStation == null)
+            {
+                ModelState.AddModelError("", "Будь ласка, виберіть станції відправлення та прибуття");
+                return View();
+            }
+
+            // Зберігаємо вибрані значення для станцій
+            ViewData["SelectedDepartureId"] = departureStationId;
+            ViewData["SelectedArrivalId"] = arrivalStationId;
+            ViewData["SelectedUserId"] = userId;
+            ViewData["SelectedTrainId"] = trainId;
+
+            // Шукаємо потяги для вибраного маршруту і дати
+            var availableTrains = await _context.Routes
+                .Include(r => r.TrainAtRoutes)
+                    .ThenInclude(tar => tar.Train)
+                .Where(r => r.StartStation == departureStation.CityTown && r.EndStation == arrivalStation.CityTown)
+                .SelectMany(r => r.TrainAtRoutes)
+                .Select(tar => tar.Train)
+                .Where(t => t.Date == parsedTravelDate)
+                .Distinct()
+                .ToListAsync();
+
+            ViewData["AvailableTrains"] = new SelectList(availableTrains, "Id", "TrainName", trainId);
+
+            // Якщо потяг вибрано, шукаємо доступні типи квитків
+            if (trainId.HasValue)
+            {
+                var ticketTypeTrains = await _context.TicketTypeTrains
+                    .Include(tt => tt.TicketType)
+                    .Where(tt => tt.TrainId == trainId.Value)
+                    .ToListAsync();
+
+                // Отримуємо список унікальних типів квитків для фільтра
+                var availableTicketTypes = ticketTypeTrains
+                    .Select(tt => tt.TicketType.Name)
+                    .Distinct()
+                    .ToList();
+
+                ViewBag.AvailableTicketTypes = availableTicketTypes;
+
+                // Отримуємо TicketTypeTrains з групуванням для видалення дублікатів
+                var ticketTypes = ticketTypeTrains
+                    .GroupBy(tt => tt.TicketType.Name)
+                    .Select(g => g.First())
+                    .Select(tt => new
+                    {
+                        tt.Id,
+                        Name = $"{tt.TicketType.Name} (Ціна: {tt.TicketType.Price} грн)"
+                    })
+                    .ToList();
+
+                ViewData["TicketTypes"] = new SelectList(ticketTypes, "Id", "Name", ticketTypeId);
+            }
+
+            // Якщо всі поля заповнені, створюємо квиток
+            if (userId.HasValue && trainId.HasValue && ticketTypeId.HasValue)
+            {
+                var ticket = new Ticket
+                {
+                    UserId = userId.Value,
+                    TrainId = trainId.Value,
+                    TicketTypeTrainId = ticketTypeId.Value,
+                    DispatchStationId = departureStationId,
+                    ArrivalStationId = arrivalStationId,
+                    DateOfTravel = parsedTravelDate,
+                    BookingDate = DateOnly.FromDateTime(DateTime.Today)
+                };
+
+                _context.Tickets.Add(ticket);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Квиток успішно створено!";
+                return RedirectToAction(nameof(TicketMaster));
+            }
+
+            return View();
         }
     }
 }

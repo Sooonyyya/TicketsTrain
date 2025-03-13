@@ -1,0 +1,433 @@
+﻿@{
+    ViewData["Title"] = "Майстер бронювання квитків";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h4><i class="fas fa-ticket-alt me-2"></i>@ViewData["Title"]</h4>
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form method="post" id="ticketMasterForm" novalidate>
+            <!-- Додаємо приховане поле для надійного збереження дати -->
+            <input type="hidden" name="selectedDateVal" id="selectedDateVal"
+                   value="@(ViewBag.SelectedDate != null ? ((DateOnly)ViewBag.SelectedDate).ToString("yyyy-MM-dd") : ViewBag.DefaultDate)" />
+
+            <!-- Крок 1: Вибір маршруту -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-route me-2"></i>Крок 1: Виберіть маршрут</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Станція відправлення</label>
+                                <select name="departureStationId" id="departureStationId" class="form-select" required
+                                        oninvalid="this.setCustomValidity('Будь ласка, виберіть станцію відправлення')"
+                                        oninput="this.setCustomValidity('')">
+                                    <option value="">-- Виберіть станцію відправлення --</option>
+                                    @foreach (var station in ViewBag.Stations)
+                                    {
+                                        if (ViewBag.SelectedDepartureId != null && ViewBag.SelectedDepartureId.Equals(int.Parse(station.Value)))
+                                        {
+                                            <option value="@station.Value" selected>@station.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@station.Value">@station.Text</option>
+                                        }
+                                    }
+                                </select>
+                                <div class="invalid-feedback">Будь ласка, виберіть станцію відправлення</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center pt-4">
+                            <i class="fas fa-arrow-right fa-2x text-primary"></i>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Станція прибуття</label>
+                                <select name="arrivalStationId" id="arrivalStationId" class="form-select" required
+                                        oninvalid="this.setCustomValidity('Будь ласка, виберіть станцію прибуття')"
+                                        oninput="this.setCustomValidity('')">
+                                    <option value="">-- Виберіть станцію прибуття --</option>
+                                    @foreach (var station in ViewBag.Stations)
+                                    {
+                                        if (ViewBag.SelectedArrivalId != null && ViewBag.SelectedArrivalId.Equals(int.Parse(station.Value)))
+                                        {
+                                            <option value="@station.Value" selected>@station.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@station.Value">@station.Text</option>
+                                        }
+                                    }
+                                </select>
+                                <div class="invalid-feedback">Будь ласка, виберіть станцію прибуття</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Крок 2: Вибір дати -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Крок 2: Виберіть дату</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mx-auto">
+                            <div class="form-group">
+                                <label class="form-label">Дата подорожі</label>
+                                <input type="date" name="travelDate" id="travelDate" class="form-control"
+                                       value="@(ViewBag.SelectedDate != null ? ((DateOnly)ViewBag.SelectedDate).ToString("yyyy-MM-dd") : ViewBag.DefaultDate)"
+                                       min="@DateTime.Today.ToString("yyyy-MM-dd")" required
+                                       oninvalid="this.setCustomValidity('Будь ласка, виберіть дату не раніше ніж @DateTime.Today.ToString("dd.MM.yyyy"))'"
+                                       oninput="this.setCustomValidity('')" />
+                                <div class="invalid-feedback">Будь ласка, виберіть дату не раніше ніж @DateTime.Today.ToString("dd.MM.yyyy")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Якщо маршрут і дата вибрані, показуємо наступні кроки -->
+            @if (ViewBag.SelectedDepartureId != null && ViewBag.SelectedArrivalId != null && ViewBag.SelectedDate != null)
+            {
+                <!-- Крок 3: Вибір користувача -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Крок 3: Виберіть пасажира</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mx-auto">
+                                <div class="form-group">
+                                    <label class="form-label">Пасажир</label>
+                                    <select name="userId" id="userId" class="form-select" required
+                                            oninvalid="this.setCustomValidity('Будь ласка, виберіть пасажира')"
+                                            oninput="this.setCustomValidity('')">
+                                        <option value="">-- Виберіть пасажира --</option>
+                                        @foreach (var user in ViewBag.Users)
+                                        {
+                                            if (ViewBag.SelectedUserId != null && ViewBag.SelectedUserId.Equals(int.Parse(user.Value)))
+                                            {
+                                                <option value="@user.Value" selected>@user.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@user.Value">@user.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                    <div class="invalid-feedback">Будь ласка, виберіть пасажира</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Крок 4: Вибір потяга -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-train me-2"></i>Крок 4: Виберіть потяг</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (ViewBag.AvailableTrains != null && ((SelectList)ViewBag.AvailableTrains).Any())
+                        {
+                            <div class="row">
+                                <div class="col-md-6 mx-auto">
+                                    <div class="form-group">
+                                        <label class="form-label">Доступні потяги</label>
+                                        <select name="trainId" id="trainSelect" class="form-select" required
+                                                oninvalid="this.setCustomValidity('Будь ласка, виберіть потяг')"
+                                                oninput="this.setCustomValidity('')">
+                                            <option value="">-- Виберіть потяг --</option>
+                                            @foreach (var train in ViewBag.AvailableTrains)
+                                            {
+                                                if (ViewBag.SelectedTrainId != null && int.Parse(train.Value) == ViewBag.SelectedTrainId)
+                                                {
+                                                    <option value="@train.Value" selected>@train.Text</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@train.Value">@train.Text</option>
+                                                }
+                                            }
+                                        </select>
+                                        <div class="invalid-feedback">Будь ласка, виберіть потяг</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Немає доступних потягів для вибраного маршруту та дати.
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Крок 5: Вибір типу квитка (якщо потяг вибрано) -->
+                @if (ViewBag.SelectedTrainId != null && ViewBag.TicketTypes != null)
+                {
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Крок 5: Виберіть тип квитка</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (ViewBag.TicketTypes != null && ((IEnumerable<SelectListItem>)ViewBag.TicketTypes).Any())
+                            {
+                                <!-- Фільтри для типів квитків -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mx-auto">
+                                        <div class="card bg-light">
+                                            <div class="card-header">
+                                                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Фільтри</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="form-label">Тип квитка</label>
+                                                            <select id="filterTicketType" class="form-select form-select-sm">
+                                                                <option value="">Всі типи</option>
+                                                                @if (ViewBag.AvailableTicketTypes != null)
+                                                                {
+                                                                    foreach (var type in ViewBag.AvailableTicketTypes)
+                                                                    {
+                                                                        <option value="@type">@type</option>
+                                                                    }
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="form-label">Макс. ціна (грн)</label>
+                                                            <input type="number" id="filterMaxPrice" class="form-control form-control-sm" min="0" value="@ViewBag.MaxPrice" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-center mt-2">
+                                                    <button type="button" id="applyFilter" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-filter me-1"></i> Застосувати
+                                                    </button>
+                                                    <button type="button" id="resetFilter" class="btn btn-sm btn-secondary ms-1">
+                                                        <i class="fas fa-redo me-1"></i> Скинути
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mx-auto">
+                                        <div class="form-group">
+                                            <label class="form-label">Тип квитка</label>
+                                            <select name="ticketTypeId" id="ticketTypeSelect" class="form-select" required
+                                                    oninvalid="this.setCustomValidity('Будь ласка, виберіть тип квитка')"
+                                                    oninput="this.setCustomValidity('')">
+                                                <option value="">-- Виберіть тип квитка --</option>
+                                                @foreach (var type in ViewBag.TicketTypes)
+                                                {
+                                                    var typeName = type.Text.Contains("(") ? type.Text.Split('(')[0].Trim() : type.Text;
+                                                    var price = 0;
+                                                    if (type.Text.Contains("Ціна:"))
+                                                    {
+                                                        var priceText = type.Text.Split(':')[1].Split(' ')[1].Replace("грн)", "").Trim();
+                                                        int.TryParse(priceText, out price);
+                                                    }
+                                                    <option value="@type.Value" data-type="@typeName" data-price="@price">@type.Text</option>
+                                                }
+                                            </select>
+                                            <div class="invalid-feedback">Будь ласка, виберіть тип квитка</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Немає доступних типів квитків для вибраного потяга.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-ticket-alt me-2"></i>Забронювати квиток
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-list me-2"></i>Усі квитки
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Елементи дати
+            const dateInput = document.getElementById('travelDate');
+            const selectedDateVal = document.getElementById('selectedDateVal');
+            const form = document.getElementById('ticketMasterForm');
+
+            // Встановлюємо значення дати з прихованого поля
+            if (dateInput && selectedDateVal && selectedDateVal.value) {
+                dateInput.value = selectedDateVal.value;
+
+                // Зберігаємо також у localStorage для додаткової надійності
+                localStorage.setItem('savedTravelDate', selectedDateVal.value);
+            }
+
+            // Відстежуємо зміни у полі дати і оновлюємо приховане поле
+            if (dateInput) {
+                dateInput.addEventListener('change', function() {
+                    if (selectedDateVal) {
+                        selectedDateVal.value = this.value;
+                    }
+                    localStorage.setItem('savedTravelDate', this.value);
+                });
+            }
+
+            // Автоматично відправляємо форму при зміні потяга
+            const trainSelect = document.getElementById('trainSelect');
+
+            if (trainSelect && form) {
+                trainSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        // Оновлюємо приховане поле перед відправкою
+                        if (dateInput && selectedDateVal) {
+                            selectedDateVal.value = dateInput.value;
+                        }
+
+                        // Встановлюємо поточне значення дати у localStorage перед відправкою
+                        if (dateInput) {
+                            localStorage.setItem('savedTravelDate', dateInput.value);
+                        }
+
+                        form.submit();
+                    }
+                });
+            }
+
+            // Відновлюємо дату з localStorage, якщо не встановлено значення
+            if (dateInput && (!dateInput.value || dateInput.value === "")) {
+                const storedDate = localStorage.getItem('savedTravelDate');
+                if (storedDate) {
+                    dateInput.value = storedDate;
+                    if (selectedDateVal) {
+                        selectedDateVal.value = storedDate;
+                    }
+                }
+            }
+
+            // Фільтрація квитків
+            const ticketTypeSelect = document.getElementById('ticketTypeSelect');
+            const filterTicketType = document.getElementById('filterTicketType');
+            const filterMaxPrice = document.getElementById('filterMaxPrice');
+            const applyFilter = document.getElementById('applyFilter');
+            const resetFilter = document.getElementById('resetFilter');
+
+            if (ticketTypeSelect && applyFilter && resetFilter) {
+                // Зберігаємо оригінальні опції для відновлення
+                const originalOptions = Array.from(ticketTypeSelect.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text,
+                    typeName: opt.getAttribute('data-type'),
+                    price: parseInt(opt.getAttribute('data-price') || 0)
+                }));
+
+                // Застосування фільтрів
+                applyFilter.addEventListener('click', function() {
+                    const selectedType = filterTicketType.value;
+                    const maxPrice = filterMaxPrice.value ? parseInt(filterMaxPrice.value) : Infinity;
+
+                    // Зберігаємо першу опцію (заголовок)
+                    const firstOption = ticketTypeSelect.options[0];
+                    ticketTypeSelect.innerHTML = '';
+                    ticketTypeSelect.appendChild(firstOption);
+
+                    // Додаємо відфільтровані опції
+                    originalOptions.forEach(option => {
+                        if (option.value) { // Пропускаємо першу опцію (заголовок)
+                            const matchesType = !selectedType || option.typeName.includes(selectedType);
+                            const matchesPrice = !maxPrice || option.price <= maxPrice;
+
+                            if (matchesType && matchesPrice) {
+                                const opt = document.createElement('option');
+                                opt.value = option.value;
+                                opt.text = option.text;
+                                opt.setAttribute('data-type', option.typeName);
+                                opt.setAttribute('data-price', option.price);
+                                ticketTypeSelect.appendChild(opt);
+                            }
+                        }
+                    });
+
+                    // Якщо нічого не знайдено
+                    if (ticketTypeSelect.options.length <= 1) {
+                        const noResults = document.createElement('option');
+                        noResults.disabled = true;
+                        noResults.text = 'Немає квитків, що відповідають фільтрам';
+                        ticketTypeSelect.appendChild(noResults);
+                    }
+                });
+
+                // Скидання фільтрів
+                resetFilter.addEventListener('click', function() {
+                    filterTicketType.value = '';
+                    filterMaxPrice.value = '';
+
+                    // Видаляємо всі опції
+                    ticketTypeSelect.innerHTML = '';
+
+                    // Відновлюємо оригінальні опції
+                    originalOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.text = option.text;
+                        if (option.typeName) opt.setAttribute('data-type', option.typeName);
+                        if (option.price) opt.setAttribute('data-price', option.price);
+                        ticketTypeSelect.appendChild(opt);
+                    });
+                });
+            }
+
+            // Користувацька валідація форми для українських повідомлень про помилки
+            // Встановлюємо власні повідомлення про помилки при відправці форми
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    // Додаємо клас .was-validated, щоб показати повідомлення про помилки
+                    form.classList.add('was-validated');
+
+                    // Знаходимо перший невалідний елемент і прокручуємо до нього
+                    const firstInvalid = form.querySelector(':invalid');
+                    if (firstInvalid) {
+                        firstInvalid.focus();
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        });
+    </script>
+}

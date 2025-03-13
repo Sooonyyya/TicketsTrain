@@ -4,47 +4,351 @@
     ViewData["Title"] = "Список квитків";
 }
 
-<h1>Список квитків</h1>
+<!-- Блок діаграм з індикаторами завантаження -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Кількість квитків за датами</h5>
+            </div>
+            <div class="card-body">
+                <!-- Прибрав жорстке height, залишив width:100% -->
+                <div id="ticketsByDateChart" style="width: 100%;">
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Завантаження...</span>
+                        </div>
+                        <span class="ms-2">Завантаження діаграми...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Потяги за кількістю пасажирів</h5>
+            </div>
+            <div class="card-body">
+                <!-- Прибрав жорстке height, залишив width:100% -->
+                <div id="trainsByPassengersChart" style="width: 100%;">
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Завантаження...</span>
+                        </div>
+                        <span class="ms-2">Завантаження діаграми...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Створити новий квиток</a>
-</p>
+<!-- Оригінальний код для пошуку та відображення квитків -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Пошук квитків</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <!-- Базовий пошук -->
+            <div class="col-md-4">
+                <label class="form-label">Станція відправлення</label>
+                <select name="departureStationId" class="form-select" asp-items="ViewBag.Stations">
+                    <option value="">-- Усі станції --</option>
+                </select>
+            </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Потяг</th>
-            <th>Користувач</th>
-            <th>Дата подорожі</th>
-            <th>Тип квитка</th>
-            <th>Ціна</th>
-            <th>Номер місця</th>
-            <th>Номер вагону</th>
-            <th>Станція відправлення</th>
-            <th>Станція прибуття</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+            <div class="col-md-4">
+                <label class="form-label">Станція прибуття</label>
+                <select name="arrivalStationId" class="form-select" asp-items="ViewBag.Stations">
+                    <option value="">-- Усі станції --</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Дата подорожі</label>
+                <input type="date" name="travelDate" class="form-control" value="@ViewBag.SelectedDate" />
+            </div>
+
+            <!-- Додаткові параметри пошуку -->
+            <div class="col-md-3">
+                <label class="form-label">Тип квитка</label>
+                <select name="ticketTypeId" class="form-select" asp-items="ViewBag.TicketTypes">
+                    <option value="">-- Усі типи --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Номер потяга</label>
+                <input type="text" name="trainNumber" class="form-control" value="@ViewBag.TrainNumber" placeholder="Введіть номер потяга" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Мін. ціна (грн)</label>
+                <input type="number" name="minPrice" class="form-control" value="@ViewBag.MinPrice" placeholder="Від" min="0" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Макс. ціна (грн)</label>
+                <input type="number" name="maxPrice" class="form-control" value="@ViewBag.MaxPrice" placeholder="До" min="0" />
+            </div>
+
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i> Пошук
+                </button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">
+                    <i class="fas fa-redo me-1"></i> Скинути фільтри
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4><i class="fas fa-ticket-alt me-2"></i>@ViewData["Title"]</h4>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Створити новий
+        </a>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
         {
-            <tr>
-                <td>@item.Train.TrainName</td>
-                <td>@item.User.Name</td>
-                <td>@item.DateOfTravel</td>
-                <td>@item.TicketTypeTrain.TicketType.Name</td>
-                <td>@item.TicketTypeTrain.TicketType.Price</td>
-                <td>@item.TicketTypeTrain.TicketType.SeatNumber</td>
-                <td>@item.TicketTypeTrain.TicketType.TrainCarriage</td>
-                <td>@item.DispatchStation.Name</td>
-                <td>@item.ArrivalStation.Name</td>
-                <td>
-                    <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Скасувати</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Редагувати</a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Деталі</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Видалити</a>
-                </td>
-            </tr>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Потяг</th>
+                            <th>Пасажир</th>
+                            <th>Дата подорожі</th>
+                            <th>Відправлення</th>
+                            <th>Прибуття</th>
+                            <th>Тип квитка</th>
+                            <th>Ціна</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in Model)
+                        {
+                            <tr>
+                                <td>@ticket.Train.TrainName</td>
+                                <td>@ticket.User.Name @ticket.User.Surname</td>
+                                <td>@ticket.DateOfTravel.ToString("dd.MM.yyyy")</td>
+                                <td>@ticket.DispatchStation.CityTown</td>
+                                <td>@ticket.ArrivalStation.CityTown</td>
+                                <td>@ticket.TicketTypeTrain.TicketType.Name</td>
+                                <td>@ticket.TicketTypeTrain.TicketType.Price грн</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@ticket.Id"
+                                           class="btn btn-sm btn-info" title="Деталі">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@ticket.Id"
+                                           class="btn btn-sm btn-warning" title="Редагувати">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Cancel" asp-route-id="@ticket.Id"
+                                           class="btn btn-sm btn-danger" title="Скасувати">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Квитків не знайдено.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Підключення jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Завантаження Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (typeof google === 'undefined') {
+                console.error('Google Charts не завантажено');
+                $('#ticketsByDateChart').html('<div class="alert alert-danger">Помилка завантаження Google Charts.</div>');
+                $('#trainsByPassengersChart').html('<div class="alert alert-danger">Помилка завантаження Google Charts.</div>');
+                return;
+            }
+
+            google.charts.load('current', { packages: ['corechart', 'bar'] });
+            google.charts.setOnLoadCallback(loadCharts);
+
+            function loadCharts() {
+                loadTicketsByDateChart();
+                loadTrainsByPassengersChart();
+            }
+
+            function loadTicketsByDateChart() {
+                console.log('Завантаження даних для діаграми квитків...');
+                const chartContainer = document.getElementById('ticketsByDateChart');
+                if (!chartContainer) return;
+
+                // Встановлюємо мінімальну висоту контейнера
+                chartContainer.innerHTML = `
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Завантаження...</span>
+                        </div>
+                        <span class="ms-2">Завантаження діаграми...</span>
+                    </div>
+                `;
+
+                $.ajax({
+                    url: '/api/Charts/tickets-by-date',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        try {
+                            var dataTable = new google.visualization.DataTable();
+                            dataTable.addColumn('string', 'Дата');
+                            dataTable.addColumn('number', 'Кількість квитків');
+
+                            data.forEach(function (item) {
+                                dataTable.addRow([item.date, item.ticketCount]);
+                            });
+
+                            // Використовуємо ширину контейнера для адаптивності
+                            var containerWidth = chartContainer.offsetWidth;
+                            var chartOptions = {
+                                // Висота обчислюється як певна частка ширини (наприклад, 50% від ширини)
+                                width: containerWidth,
+                                height: containerWidth * 0.5,
+                                chartArea: {
+                                    left: 60,
+                                    right: 20,
+                                    top: 20,
+                                    bottom: 80,
+                                    width: '70%',
+                                    height: '60%'
+                                },
+                                hAxis: {
+                                    title: 'Дата',
+                                    slantedText: true,
+                                    slantedTextAngle: 90,
+                                    textStyle: { fontSize: 12 }
+                                },
+                                vAxis: {
+                                    title: 'Кількість квитків',
+                                    minValue: 0
+                                },
+                                legend: { position: 'none' },
+                                animation: {
+                                    startup: true,
+                                    duration: 1000,
+                                    easing: 'out'
+                                },
+                                colors: ['#4285F4']
+                            };
+
+                            var chart = new google.visualization.ColumnChart(chartContainer);
+                            chart.draw(dataTable, chartOptions);
+                        } catch (e) {
+                            console.error('Помилка створення діаграми квитків:', e);
+                            chartContainer.innerHTML = '<div class="alert alert-danger">Помилка при створенні діаграми: ' + e.message + '</div>';
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX помилка при завантаженні даних квитків:', status, error);
+                        chartContainer.innerHTML = '<div class="alert alert-danger">Помилка завантаження даних: ' + status + '</div>';
+                    }
+                });
+            }
+
+            function loadTrainsByPassengersChart() {
+                console.log('Завантаження даних для діаграми потягів...');
+                const chartContainer = document.getElementById('trainsByPassengersChart');
+                if (!chartContainer) return;
+
+                chartContainer.innerHTML = `
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Завантаження...</span>
+                        </div>
+                        <span class="ms-2">Завантаження діаграми...</span>
+                    </div>
+                `;
+
+                $.ajax({
+                    url: '/api/Charts/trains-by-passengers',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        try {
+                            var dataTable = new google.visualization.DataTable();
+                            dataTable.addColumn('string', 'Потяг');
+                            dataTable.addColumn('number', 'Кількість пасажирів');
+
+                            data.forEach(function (item) {
+                                dataTable.addRow([item.trainName, item.passengerCount]);
+                            });
+
+                            var containerWidth = chartContainer.offsetWidth;
+                            var chartOptions = {
+                                width: containerWidth,
+                                height: containerWidth * 0.5,
+                                chartArea: {
+                                    left: 60,
+                                    right: 20,
+                                    top: 20,
+                                    bottom: 80,
+                                    width: '70%',
+                                    height: '60%'
+                                },
+                                hAxis: {
+                                    title: 'Потяг',
+                                    slantedText: true,
+                                    slantedTextAngle: 90,
+                                    textStyle: { fontSize: 12 }
+                                },
+                                vAxis: {
+                                    title: 'Кількість пасажирів',
+                                    minValue: 0
+                                },
+                                legend: { position: 'none' },
+                                animation: {
+                                    startup: true,
+                                    duration: 1000,
+                                    easing: 'out'
+                                },
+                                colors: ['#34A853']
+                            };
+
+                            var chart = new google.visualization.ColumnChart(chartContainer);
+                            chart.draw(dataTable, chartOptions);
+                        } catch (e) {
+                            console.error('Помилка створення діаграми потягів:', e);
+                            chartContainer.innerHTML = '<div class="alert alert-danger">Помилка при створенні діаграми: ' + e.message + '</div>';
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX помилка при завантаженні даних потягів:', status, error);
+                        chartContainer.innerHTML = '<div class="alert alert-danger">Помилка завантаження даних: ' + status + '</div>';
+                    }
+                });
+            }
+
+            // Оновлення діаграм при зміні розміру вікна
+            $(window).resize(function () {
+                loadTicketsByDateChart();
+                loadTrainsByPassengersChart();
+            });
+        });
+    </script>
+}
+

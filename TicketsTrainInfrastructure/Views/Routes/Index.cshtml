@@ -1,45 +1,61 @@
 ﻿@model IEnumerable<TicketsTrainDomain.Model.Route>
-
 @{
-    ViewData["Title"] = "Routes - Index";
+    ViewData["Title"] = "Список маршрутів";
 }
 
-<h1>Маршрути</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Створити новий</a>
-</p>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Початкова станція</th>
-            <th>Кінцева станція</th>
-            <th>Проміжна станція</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var route in Model)
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4><i class="fas fa-route me-2"></i>@ViewData["Title"]</h4>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Створити новий
+        </a>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
         {
-            <tr>
-                <td>@route.StartStation</td>
-                <td>@route.EndStation</td>
-                <td>
-                    @if (route.StationAtRoutes != null)
-                    {
-                        foreach (var sar in route.StationAtRoutes)
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Початкова станція</th>
+                            <th>Кінцева станція</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var route in Model)
                         {
-                            @sar.RailwayStation.CityTown <br />
+                            <tr>
+                                <td>@route.StartStation</td>
+                                <td>@route.EndStation</td>
+
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@route.Id"
+                                           class="btn btn-sm btn-info" title="Деталі">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@route.Id"
+                                           class="btn btn-sm btn-warning" title="Редагувати">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@route.Id"
+                                           class="btn btn-sm btn-danger" title="Видалити">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
                         }
-                    }
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@route.Id" class="btn btn-warning">Редагувати</a>
-                    <a asp-action="Details" asp-route-id="@route.Id" class="btn btn-info">Деталі</a>
-                    <a asp-action="Delete" asp-route-id="@route.Id" class="btn btn-danger">Видалити</a>
-                </td>
-            </tr>
+                    </tbody>
+                </table>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Маршрутів не знайдено.
+            </div>
+        }
+    </div>
+</div>

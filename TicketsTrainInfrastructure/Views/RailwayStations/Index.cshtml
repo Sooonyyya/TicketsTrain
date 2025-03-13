@@ -1,37 +1,68 @@
 ﻿@model IEnumerable<TicketsTrainDomain.Model.RailwayStation>
-
 @{
-    ViewData["Title"] = "Залізнична станція";
+    ViewData["Title"] = "Список залізничних станцій";
 }
 
-<h1>Залізничні станції</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Створити</a>
-</p>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Назва</th>
-            <th>Місто</th>
-            <th>Країна</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var station in Model)
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4><i class="fas fa-subway me-2"></i>@ViewData["Title"]</h4>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i>Створити нову
+        </a>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
         {
-            <tr>
-                <td>@station.Name</td>
-                <td>@station.CityTown</td>
-                <td>@station.Country</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@station.Id" class="btn btn-warning">Редагувати</a>
-                    <a asp-action="Details" asp-route-id="@station.Id" class="btn btn-info">Деталі</a>
-                    <a asp-action="Delete" asp-route-id="@station.Id" class="btn btn-danger">Видалити</a>
-                </td>
-            </tr>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Назва</th>
+                            <th>Місто</th>
+                            <th>Країна</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var station in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <i class="fas fa-train text-primary me-1"></i> @station.Name
+                                </td>
+                                <td>
+                                    <i class="fas fa-city text-success me-1"></i> @station.CityTown
+                                </td>
+                                <td>
+                                    <i class="fas fa-flag text-info me-1"></i> @station.Country
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@station.Id"
+                                           class="btn btn-sm btn-info" title="Деталі">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@station.Id"
+                                           class="btn btn-sm btn-warning" title="Редагувати">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@station.Id"
+                                           class="btn btn-sm btn-danger" title="Видалити">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>Залізничних станцій не знайдено.
+            </div>
+        }
+    </div>
+</div>

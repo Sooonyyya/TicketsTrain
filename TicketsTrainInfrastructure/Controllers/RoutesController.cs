@@ -23,12 +23,7 @@ namespace TicketsTrainInfrastructure.Controllers
         // GET: Routes
         public async Task<IActionResult> Index()
         {
-            // Підтягуємо маршрути з їхніми станціями
-            var routes = await _context.Routes
-                .Include(r => r.StationAtRoutes)
-                    .ThenInclude(sar => sar.RailwayStation)
-                .ToListAsync();
-
+            var routes = await _context.Routes.ToListAsync();
             return View(routes);
         }
 
@@ -39,8 +34,6 @@ namespace TicketsTrainInfrastructure.Controllers
                 return NotFound();
 
             var route = await _context.Routes
-                .Include(r => r.StationAtRoutes)
-                    .ThenInclude(sar => sar.RailwayStation)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (route == null)
@@ -52,39 +45,28 @@ namespace TicketsTrainInfrastructure.Controllers
         // GET: Routes/Create
         public IActionResult Create()
         {
-            // MultiSelectList зі списком доступних станцій
-            ViewData["AvailableStations"] = new MultiSelectList(_context.RailwayStations, "Id", "Name");
+            // Create SelectList objects for start and end station dropdowns using CityTown field
+            ViewData["StartStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown");
+            ViewData["EndStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown");
+
             return View();
         }
 
         // POST: Routes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,StartStation,EndStation")] Route route, int[] SelectedStationIds)
+        public async Task<IActionResult> Create([Bind("Id,StartStation,EndStation")] Route route)
         {
             if (ModelState.IsValid)
             {
-                // Спочатку зберігаємо сам маршрут
                 _context.Add(route);
                 await _context.SaveChangesAsync();
-
-                // Потім зберігаємо зв’язки маршрут-станція в таблиці StationAtRoute
-                foreach (var stationId in SelectedStationIds)
-                {
-                    var stationAtRoute = new StationAtRoute
-                    {
-                        RouteId = route.Id,
-                        RailwayStationId = stationId
-                    };
-                    _context.StationAtRoutes.Add(stationAtRoute);
-                }
-                await _context.SaveChangesAsync();
-
                 return RedirectToAction(nameof(Index));
             }
 
-            // Якщо щось не так, повертаємо MultiSelectList і саму модель
-            ViewData["AvailableStations"] = new MultiSelectList(_context.RailwayStations, "Id", "Name", SelectedStationIds);
+            // If validation fails, repopulate the dropdown lists with CityTown field
+            ViewData["StartStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown");
+            ViewData["EndStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown");
             return View(route);
         }
 
@@ -94,25 +76,23 @@ namespace TicketsTrainInfrastructure.Controllers
             if (id == null)
                 return NotFound();
 
-            // Завантажуємо маршрут разом зі станціями
             var route = await _context.Routes
-                .Include(r => r.StationAtRoutes)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (route == null)
                 return NotFound();
 
-            // Масив id станцій, які вже прив’язані до цього маршруту
-            var selectedStationIds = route.StationAtRoutes.Select(sar => sar.RailwayStationId).ToArray();
+            // Create SelectList objects for start and end station dropdowns using CityTown field
+            ViewData["StartStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown", route.StartStation);
+            ViewData["EndStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown", route.EndStation);
 
-            ViewData["AvailableStations"] = new MultiSelectList(_context.RailwayStations, "Id", "Name", selectedStationIds);
             return View(route);
         }
 
         // POST: Routes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,StartStation,EndStation")] Route route, int[] SelectedStationIds)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,StartStation,EndStation")] Route route)
         {
             if (id != route.Id)
                 return NotFound();
@@ -121,25 +101,7 @@ namespace TicketsTrainInfrastructure.Controllers
             {
                 try
                 {
-                    // Оновлюємо основну інформацію про маршрут
                     _context.Update(route);
-                    await _context.SaveChangesAsync();
-
-                    // Спочатку видаляємо старі зв’язки
-                    var existingStations = _context.StationAtRoutes.Where(s => s.RouteId == route.Id);
-                    _context.StationAtRoutes.RemoveRange(existingStations);
-                    await _context.SaveChangesAsync();
-
-                    // Додаємо нові зв’язки
-                    foreach (var stationId in SelectedStationIds)
-                    {
-                        var stationAtRoute = new StationAtRoute
-                        {
-                            RouteId = route.Id,
-                            RailwayStationId = stationId
-                        };
-                        _context.StationAtRoutes.Add(stationAtRoute);
-                    }
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -152,7 +114,9 @@ namespace TicketsTrainInfrastructure.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["AvailableStations"] = new MultiSelectList(_context.RailwayStations, "Id", "Name", SelectedStationIds);
+            // If validation fails, repopulate the dropdown lists with CityTown field
+            ViewData["StartStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown", route.StartStation);
+            ViewData["EndStationList"] = new SelectList(_context.RailwayStations, "CityTown", "CityTown", route.EndStation);
             return View(route);
         }
 
@@ -163,8 +127,6 @@ namespace TicketsTrainInfrastructure.Controllers
                 return NotFound();
 
             var route = await _context.Routes
-                .Include(r => r.StationAtRoutes)
-                    .ThenInclude(sar => sar.RailwayStation)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (route == null)

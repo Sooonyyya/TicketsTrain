@@ -193,19 +193,19 @@
                                 <i class="fas fa-users me-1"></i>Користувачі
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "TicketTypes")">
+                                <i class="fas fa-users me-1"></i>Типи квитків
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("TicketMaster", "Tickets")">
+                                <i class="fas fa-magic me-1"></i>Майстер бронювання
+                            </a>
+                        </li>
                     </ul>
 
-                    <div class="dropdown">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-cog me-1"></i>Адміністрування
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-                            <li><a class="dropdown-item" href="@Url.Action("Index", "TicketTypes")">Типи квитків</a></li>
-                            <li><a class="dropdown-item" href="@Url.Action("Index", "TicketTypeTrains")">Типи квитків (управління)</a></li>
-                            <li><a class="dropdown-item" href="@Url.Action("Index", "StationAtRoutes")">Станції на маршруті</a></li>
-                            <li><a class="dropdown-item" href="@Url.Action("Index", "TrainAtRoutes")">Потяг на маршруті</a></li>
-                        </ul>
-                    </div>
+                   
                 </div>
             </div>
         </nav>

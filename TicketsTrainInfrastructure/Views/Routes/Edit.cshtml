@@ -1,40 +1,28 @@
 ﻿@model TicketsTrainDomain.Model.Route
-
 @{
     ViewData["Title"] = "Edit Route";
-
-    var stationList = ViewData["AvailableStations"] as MultiSelectList;
+    var startStationList = ViewData["StartStationList"] as SelectList;
+    var endStationList = ViewData["EndStationList"] as SelectList;
 }
-
 <h1>Редагувати маршрут</h1>
-
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
-
     <div class="form-group">
         <label asp-for="StartStation">Початкова станція</label>
-        <input asp-for="StartStation" class="form-control" />
+        <select asp-for="StartStation" asp-items="startStationList" class="form-control">
+            <option value="">-- Оберіть початкове місто --</option>
+        </select>
         <span asp-validation-for="StartStation" class="text-danger"></span>
     </div>
-
     <div class="form-group">
         <label asp-for="EndStation">Кінцева станція</label>
-        <input asp-for="EndStation" class="form-control" />
+        <select asp-for="EndStation" asp-items="endStationList" class="form-control">
+            <option value="">-- Оберіть кінцеве місто --</option>
+        </select>
         <span asp-validation-for="EndStation" class="text-danger"></span>
     </div>
-
-    <div class="form-group">
-        <label>Проміжна станція</label>
-        <select asp-items="stationList"
-                multiple="multiple"
-                name="SelectedStationIds"
-                class="form-control">
-        </select>
-    </div>
-
     <input type="submit" value="Save" class="btn btn-primary" />
 </form>
-
 <div>
     <a asp-action="Index">Повернутися</a>
 </div>
