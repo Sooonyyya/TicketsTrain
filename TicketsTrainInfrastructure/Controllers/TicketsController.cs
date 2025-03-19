@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TicketsTrainDomain.Model;
 using TicketsTrainInfrastructure;
+using TicketsTrainInfrastructure.Services;
 
 namespace TicketsTrainInfrastructure.Controllers
 {
     public class TicketsController : Controller
     {
         private readonly TicketsTrainContext _context;
+        private readonly IDataPortServiceFactory<Ticket> _ticketDataPortServiceFactory;
 
-        public TicketsController(TicketsTrainContext context)
+        public TicketsController(TicketsTrainContext context, IDataPortServiceFactory<Ticket> ticketDataPortServiceFactory)
         {
             _context = context;
+            _ticketDataPortServiceFactory = ticketDataPortServiceFactory;
         }
 
         public async Task<IActionResult> Index(int? departureStationId, int? arrivalStationId, string travelDate,
@@ -117,6 +120,54 @@ namespace TicketsTrainInfrastructure.Controllers
             var tickets = await query.ToListAsync();
 
             return View(tickets);
+        }
+
+        // GET: Tickets/Import
+        [HttpGet]
+        public IActionResult Import()
+        {
+            return View();
+        }
+
+        // POST: Tickets/Import
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken = default)
+        {
+            if (fileExcel != null && fileExcel.Length > 0)
+            {
+                var importService = _ticketDataPortServiceFactory.GetImportService("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+                using var stream = fileExcel.OpenReadStream();
+                await importService.ImportFromStreamAsync(stream, cancellationToken);
+
+                TempData["SuccessMessage"] = "Квитки успішно імпортовано з файлу.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("", "Будь ласка, оберіть файл для завантаження.");
+            return View();
+        }
+
+        // GET: Tickets/Export
+        [HttpGet]
+        public async Task<IActionResult> Export(
+            [FromQuery] string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            CancellationToken cancellationToken = default)
+        {
+            var exportService = _ticketDataPortServiceFactory.GetExportService(contentType);
+
+            var memoryStream = new MemoryStream();
+
+            await exportService.WriteToAsync(memoryStream, cancellationToken);
+
+            await memoryStream.FlushAsync(cancellationToken);
+            memoryStream.Position = 0;
+
+            return new FileStreamResult(memoryStream, contentType)
+            {
+                FileDownloadName = $"tickets_{DateTime.UtcNow.ToString("yyyy-MM-dd")}.xlsx"
+            };
         }
 
         // Інші методи залишаються без змін

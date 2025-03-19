@@ -9,7 +9,9 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Кількість квитків за датами</h5>
+                <h5 class="mb-0" style="color: black;">
+                    <i class="fas fa-chart-bar me-2"></i>Кількість квитків за датами
+                </h5>
             </div>
             <div class="card-body">
                 <!-- Прибрав жорстке height, залишив width:100% -->
@@ -22,12 +24,15 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Потяги за кількістю пасажирів</h5>
+                <h5 class="mb-0" style="color: black;">
+                    <i class="fas fa-chart-bar me-2"></i>Потяги за кількістю пасажирів
+                </h5>
             </div>
             <div class="card-body">
                 <!-- Прибрав жорстке height, залишив width:100% -->
@@ -47,7 +52,9 @@
 <!-- Оригінальний код для пошуку та відображення квитків -->
 <div class="card mb-4">
     <div class="card-header bg-light">
-        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Пошук квитків</h5>
+        <h5 class="mb-0" style="color: black;">
+            <i class="fas fa-chart-bar me-2"></i>Пошук квитків
+        </h5>
     </div>
     <div class="card-body">
         <form method="get" asp-action="Index" class="row g-3 align-items-end">
@@ -109,11 +116,26 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4><i class="fas fa-ticket-alt me-2"></i>@ViewData["Title"]</h4>
-        <a asp-action="Create" class="btn btn-success">
-            <i class="fas fa-plus me-1"></i>Створити новий
-        </a>
+        <div>
+            <a asp-action="Import" class="btn btn-primary me-2">
+                <i class="fas fa-file-import me-1"></i>Завантажити з файлу
+            </a>
+            <a asp-action="Export" class="btn btn-primary me-2">
+                <i class="fas fa-file-export me-1"></i>Експортувати у файл
+            </a>
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i>Створити новий
+            </a>
+        </div>
     </div>
     <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            </div>
+        }
+
         @if (Model.Any())
         {
             <div class="table-responsive">
@@ -351,4 +373,3 @@
         });
     </script>
 }
-
