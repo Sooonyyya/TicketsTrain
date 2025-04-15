@@ -129,7 +129,6 @@ namespace TicketsTrainInfrastructure.Controllers
             return View();
         }
 
-        // POST: Tickets/Import
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken = default)
@@ -138,16 +137,29 @@ namespace TicketsTrainInfrastructure.Controllers
             {
                 var importService = _ticketDataPortServiceFactory.GetImportService("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-                using var stream = fileExcel.OpenReadStream();
-                await importService.ImportFromStreamAsync(stream, cancellationToken);
+                try
+                {
+                    using var stream = fileExcel.OpenReadStream();
+                    await importService.ImportFromStreamAsync(stream, cancellationToken);
+                    TempData["SuccessMessage"] = "Квитки успішно імпортовано з файлу.";
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = ex.Message;
+                }
 
-                TempData["SuccessMessage"] = "Квитки успішно імпортовано з файлу.";
-                return RedirectToAction(nameof(Index));
+
+
+                return RedirectToAction(nameof(Import));
             }
 
             ModelState.AddModelError("", "Будь ласка, оберіть файл для завантаження.");
             return View();
         }
+
+
+
+
 
         // GET: Tickets/Export
         [HttpGet]

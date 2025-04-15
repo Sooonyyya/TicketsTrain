@@ -2,20 +2,51 @@
     ViewData["Title"] = "Імпорт квитків";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    @Html.Raw(TempData["ErrorMessage"])
+}
+
+
+
+<!-- Повідомлення про успіх -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+
+<!-- Відображення помилок з ModelState -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+    </div>
+}
+
 <div class="card">
     <div class="card-header">
         <h4><i class="fas fa-file-import me-2"></i>@ViewData["Title"]</h4>
     </div>
     <div class="card-body">
         <div class="row">
+            <!-- Форма завантаження файлу -->
             <div class="col-md-6">
                 <div class="mb-4">
                     <h5>Оберіть Excel-файл для завантаження квитків</h5>
                     @using (Html.BeginForm("Import", "Tickets", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
                     {
+                        @Html.AntiForgeryToken()
+
                         <div class="mb-3">
                             <p>Завантажте Excel-файл з даними про квитки:</p>
-                            <input type="file" name="fileExcel" id="fileExcel" class="form-control" accept=".xlsx" />
+
+                            <!-- Приховуємо стандартний input та використовуємо кастомну кнопку -->
+                            <div class="custom-file">
+                                <input type="file" id="fileExcel" name="fileExcel" accept=".xlsx" style="display: none;" />
+                                <button type="button" id="customButton" class="btn btn-secondary">Оберіть файл</button>
+                                <span id="fileName" class="ml-2">Файл не обрано</span>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <input type="submit" value="Завантажити" class="btn btn-primary" />
@@ -24,6 +55,8 @@
                     }
                 </div>
             </div>
+
+            <!-- Опис вимог до формату файлу -->
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-header bg-light">
@@ -52,6 +85,7 @@
             </div>
         </div>
 
+        <!-- Примітка -->
         <div class="mt-4">
             <div class="alert alert-info">
                 <h5><i class="fas fa-info-circle me-2"></i>Примітка:</h5>
@@ -63,3 +97,25 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Отримуємо посилання на елементи
+            var fileInput = document.getElementById("fileExcel");
+            var customButton = document.getElementById("customButton");
+            var fileNameSpan = document.getElementById("fileName");
+
+            // При кліку на кастомну кнопку відкриваємо діалог вибору файлу
+            customButton.addEventListener("click", function(){
+                fileInput.click();
+            });
+
+            // Оновлюємо текст, коли вибрано файл
+            fileInput.addEventListener("change", function () {
+                var fileName = this.files.length > 0 ? this.files[0].name : "Файл не обрано";
+                fileNameSpan.innerText = fileName;
+            });
+        });
+    </script>
+}
