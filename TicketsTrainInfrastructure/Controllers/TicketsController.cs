@@ -157,10 +157,6 @@ namespace TicketsTrainInfrastructure.Controllers
             return View();
         }
 
-
-
-
-
         // GET: Tickets/Export
         [HttpGet]
         public async Task<IActionResult> Export(
