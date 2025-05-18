@@ -31,6 +31,24 @@ namespace TicketsTrainInfrastructure.Controllers
             return View(tickets);
         }
 
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            ViewData["Title"] = "Деталі квитка";
+            var ticket = await _context.Tickets
+                .Include(t => t.Train)
+                .Include(t => t.User)
+                .Include(t => t.TicketTypeTrain)
+                    .ThenInclude(tt => tt.TicketType)
+                .Include(t => t.ArrivalStation)
+                .Include(t => t.DispatchStation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (ticket == null) return NotFound();
+
+            return View(ticket);
+        }
         public async Task<IActionResult> Create()
         {
             ViewData["Title"] = "Створення квитка";
@@ -149,6 +167,100 @@ namespace TicketsTrainInfrastructure.Controllers
 
             PrepareViewData(ticket);
             return View(ticket);
+        }
+        // GET: Tickets/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            ViewData["Title"] = "Редагування квитка";
+            var ticket = await _context.Tickets
+                .Include(t => t.Train)
+                .Include(t => t.User)
+                .Include(t => t.TicketTypeTrain)
+                    .ThenInclude(tt => tt.TicketType)
+                .Include(t => t.ArrivalStation)
+                .Include(t => t.DispatchStation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (ticket == null) return NotFound();
+
+            // Додаємо тільки список пасажирів
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "Name", ticket.UserId);
+
+            return View(ticket);
+        }
+
+        // POST: Tickets/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, int UserId)
+        {
+            var ticket = await _context.Tickets.FindAsync(id);
+
+            if (ticket == null)
+                return NotFound();
+
+            if (UserId != 0)
+            {
+                ticket.UserId = UserId;
+
+                try
+                {
+                    _context.Update(ticket);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TicketExists(id))
+                        return NotFound();
+                    else
+                        throw;
+                }
+            }
+
+            ViewData["Users"] = new SelectList(_context.Users, "Id", "Name", UserId);
+
+            return View(ticket);
+        }
+
+        // DELETE: Tickets/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            ViewData["Title"] = "Видалення квитка";
+            var ticket = await _context.Tickets
+                .Include(t => t.Train)
+                .Include(t => t.User)
+                .Include(t => t.TicketTypeTrain)
+                    .ThenInclude(tt => tt.TicketType)
+                .Include(t => t.ArrivalStation)
+                .Include(t => t.DispatchStation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (ticket == null) return NotFound();
+
+            return View(ticket);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket != null)
+            {
+                _context.Tickets.Remove(ticket);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TicketExists(int id)
+        {
+            return _context.Tickets.Any(e => e.Id == id);
         }
 
         private async Task<List<Train>> GetAvailableTrains(int departureStationId, int arrivalStationId, DateOnly travelDate)
