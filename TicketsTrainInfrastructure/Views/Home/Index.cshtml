@@ -1,8 +1,88 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Головне меню";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Головне меню системи бронювання квитків</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-ticket-alt fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Квитки</h5>
+                    <p class="card-text">Перегляд, фільтрація та створення квитків</p>
+                    <a href="@Url.Action("Index", "Tickets")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Користувачі</h5>
+                    <p class="card-text">Управління інформацією про користувачів</p>
+                    <a href="@Url.Action("Index", "Users")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-subway fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Потяги</h5>
+                    <p class="card-text">Список потягів і управління ними</p>
+                    <a href="@Url.Action("Index", "Trains")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-map-marker-alt fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Станції</h5>
+                    <p class="card-text">Перелік залізничних станцій</p>
+                    <a href="@Url.Action("Index", "RailwayStations")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-route fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Маршрути</h5>
+                    <p class="card-text">Всі маршрути руху потягів</p>
+                    <a href="@Url.Action("Index", "Routes")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-ticket fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Типи квитків</h5>
+                    <p class="card-text">Класифікація квитків: купе, люкс тощо</p>
+                    <a href="@Url.Action("Index", "TicketTypes")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                    <h5 class="card-title">Запити</h5>
+                    <p class="card-text">Прості та складні запити</p>
+                    <a href="@Url.Action("Index", "Queries")" class="btn btn-primary">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>

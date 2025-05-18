@@ -1,0 +1,115 @@
+﻿@model TicketsTrainDomain.Model.Query
+
+@{
+    ViewData["Title"] = "Результати запиту";
+
+    var queryDescriptions = new Dictionary<string, string>
+            {
+                ["П1"] = "П1 – Користувачі, які купили квитки на вказаний потяг",
+                ["П2"] = "П2 – Потяги, що відправляються з вказаного міста",
+                ["П3"] = "П3 – Користувачі, які подорожують у певний день",
+                ["П4"] = "П4 – Потяги, що прибувають у вказане місто",
+                ["П5"] = "П5 – Потяги, що мають хоча б один квиток заданого типу",
+
+
+                ["С1"] = "С1 – Користувачі, які їздили всіма потягами, як і обраний користувач",
+                ["С2"] = "С2 – Користувачі, які подорожували всіма типами квитків, як і обраний користувач",
+                ["С3"] = "С3 – Потяги з таким самим маршрутом, як у заданого потяга"
+            };
+
+    var title = queryDescriptions.ContainsKey(Model.QueryName)
+        ? queryDescriptions[Model.QueryName]
+        : $"Результати запиту {Model.QueryName}";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">@title</h2>
+
+    @if (Model.ErrorFlag == 1)
+    {
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i> @Model.ErrorName
+        </div>
+    }
+    else
+    {
+        if (Model.TrainNames.Any())
+        {
+            <h4 class="mt-4 mb-3">Потяги</h4>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Назва потяга</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.TrainNames.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@Model.TrainNames[i]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        if (Model.TicketTypeNames.Any())
+        {
+            <h4 class="mt-4 mb-3">Типи квитків</h4>
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Назва типу</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.TicketTypeNames.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@Model.TicketTypeNames[i]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        @if (Model.CustomerNames.Any())
+        {
+            <h4 class="mt-4 mb-3">Користувачі</h4>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Ім’я та прізвище</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.CustomerNames.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@Model.CustomerNames[i]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+
+
+        if (!Model.TrainNames.Any() && !Model.TicketTypeNames.Any() && !Model.CustomerNames.Any())
+        {
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle me-2"></i> За обраними параметрами нічого не знайдено.
+            </div>
+        }
+    }
+
+    <a asp-action="Index" class="btn btn-secondary mt-4">
+        <i class="fas fa-arrow-left me-2"></i> Назад до запитів
+    </a>
+</div>

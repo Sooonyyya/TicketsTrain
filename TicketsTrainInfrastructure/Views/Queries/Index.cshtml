@@ -1,0 +1,117 @@
+﻿@model TicketsTrainDomain.Model.Query
+
+@{
+    ViewData["Title"] = "Запити";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Виконання запитів</h2>
+
+    <!-- П1 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>П1 – Користувачі, які купили квитки на вказаний потяг</h5>
+        <input type="hidden" name="QueryName" value="П1" />
+        <div class="mb-3">
+            <label class="form-label">Назва потяга</label>
+            <input name="TrainName" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Виконати П1</button>
+    </form>
+
+
+
+    <!-- П2 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>П2 – Потяги, що відправляються з вказаного міста</h5>
+        <input type="hidden" name="QueryName" value="П2" />
+        <div class="mb-3">
+            <label class="form-label">Назва міста</label>
+            <input name="CityFrom" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Виконати П2</button>
+    </form>
+
+    <!-- П3 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>П3 – Користувачі, які подорожують у певний день</h5>
+        <input type="hidden" name="QueryName" value="П3" />
+        <div class="mb-3">
+            <label class="form-label">Дата подорожі</label>
+            <input name="TravelDate" type="date" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Виконати П3</button>
+    </form>
+
+    <!-- П4 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>П4 – Потяги, що прибувають у вказане місто</h5>
+        <input type="hidden" name="QueryName" value="П4" />
+        <div class="mb-3">
+            <label class="form-label">Назва міста прибуття</label>
+            <input name="CityTo" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Виконати П4</button>
+    </form>
+
+    <!-- П5 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>П5 – Потяги, що мають хоча б один квиток заданого типу</h5>
+        <input type="hidden" name="QueryName" value="П5" />
+        <div class="mb-3">
+            <label class="form-label">Назва типу квитка</label>
+            <input name="TicketTypeName" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Виконати П5</button>
+    </form>
+
+
+
+
+    <!-- С1 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>С1 – Користувачі, які їздили всіма потягами, як і обраний користувач</h5>
+        <input type="hidden" name="QueryName" value="С1" />
+        <div class="mb-3">
+            <label class="form-label">Ім’я користувача</label>
+            <input name="UserName" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Прізвище користувача</label>
+            <input name="UserSurname" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-dark">Виконати С1</button>
+    </form>
+
+
+    <!-- С2 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>С2 – Користувачі, які подорожували всіма типами квитків, як і обраний користувач</h5>
+        <input type="hidden" name="QueryName" value="С2" />
+        <div class="mb-3">
+            <label class="form-label">Ім’я користувача</label>
+            <input name="UserName" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Прізвище користувача</label>
+            <input name="UserSurname" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-dark">Виконати С2</button>
+    </form>
+
+
+    <!-- С3 -->
+    <form asp-action="Execute" method="post" class="mb-4">
+        <h5>С3 – Потяги з таким самим маршрутом, як у вказаного потяга</h5>
+        <input type="hidden" name="QueryName" value="С3" />
+        <div class="mb-3">
+            <label class="form-label">Назва потяга</label>
+            <input name="TrainName" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-dark">Виконати С3</button>
+    </form>
+
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mt-4">
+        <i class="fas fa-home me-2"></i> Повернутись до меню
+    </a>
+
+</div>
